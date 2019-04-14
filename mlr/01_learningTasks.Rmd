@@ -1,0 +1,91 @@
+---
+title: Learning Tasks
+author: Dag Tanneberg
+date: 04/14/2019
+output: html_document
+---
+
+## Introduction
+
+- mlr works on tasks
+- tasks encapsulate data & information about the ml problem
+- there is a virtual superclass Task()
+- Existing tasks:
+    + RegrTask()
+    + ClassifTask()
+    + SurvTask()
+    + ClusterTask()
+    + MultilabelTask()
+    + CostSensTask(): cost-sensitive classification
+
+## Regression Task
+
+```{r}
+library("mlr")
+data(BostonHousing, package = "mlbench")
+regr.task <- makeRegrTask(id = "bh", data = BostonHousing, target = "medv")
+regr.task
+```
+
+## Classification Task
+
+- target must be a factor
+
+```{r}
+data(BreastCancer, package = "mlbench")
+df <- BreastCancer; df$Id <- NULL
+classif.task <- makeClassifTask(id = "bc", data = df, target = "Class")
+classif.task
+```
+
+## Survival Analysis
+
+- declaration expects time & censoring variable
+- argument <censoring> defaults to "rcens" (right censoring)
+
+```{r}
+data(lung, package = "survival")
+str(lung)
+lung$status <- (lung$status == 2)
+surv.task <- makeSurvTask(data = lung, target = c("time", "status"))
+surv.task
+```
+
+## Multilabel classification
+
+- each object can belong to more than one category
+- data must have as many logical target columns as there are labels
+- column names are taken as class label
+
+```{r}
+yeast <- getTaskData(yeast.task) # extract data from a task object
+labels <- colnames(yeast)[seq(14)]
+yeast.task <- makeMultilabelTask(id = "multilabel", data = yeast, target = labels)
+yeast.task
+```
+
+## Cluster Analysis
+
+- unsupervised learning $\rightarrow$ no target required
+
+```{r}
+data(mtcars, package = "datasets")
+cluster.task <- makeClusterTask(data = mtcars)
+cluster.task
+```
+
+## Cost-Sensitive Classification
+
+- assumes differential costs for classification errors
+- in Cost-Sensitive Classification costs depend on the *specific training example*
+- each example $(x, y)$ has a cost vector $K$ with length $K$ = # of classes
+
+```{r}
+df <- iris
+cost <- matrix(runif(150 * 3, 0, 2000), 150) * (1 - diag(3))[df$Species,]
+df$Species = NULL
+
+costsens.task = makeCostSensTask(data = df, cost = cost)
+costsens.task
+```
+
