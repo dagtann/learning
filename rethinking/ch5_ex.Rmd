@@ -1,3 +1,4 @@
+
 ---
 author: Dag Tanneberg
 title: Statistical Thinking Ch. 5 Practice
