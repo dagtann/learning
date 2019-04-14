@@ -1,0 +1,99 @@
+---
+title: "Statistical Rethinking Chapter 3 Practice"
+author: "Dag Tanneberg"
+date: "4/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("rethinking")
+```
+
+# Easy
+
+##  5E1
+
+Which of the linear models below are multiple linear regressions?
+
+1. $\mu_i = \alpha + \beta x$
+2. $\mu_i = \beta_x x_i + \beta_z z_i$
+3. $\mu_i = \alpha + \beta(x_i - z_i)$
+4. $\mu_i = \alpha + \beta_x x_i + \beta_z z_i$
+
+Models (2) and (4) are multiple linear regression models.
+
+## 5E2.
+
+Write down a multiple regression to evaluate the claim: Animal
+diversity is linearly related to latitude, but only after controlling for
+plant diversity. You just need to write down the model definition.
+
+Variables: Animal diversity, latitude, plant diversity
+Plant diversity is a suppressor of latitude
+
+$\text{Animal diversity} = f(\text{Latitude}, \text{Plant diversity}) = \alpha + \beta_1 \text{Latitude} + \beta_2 \text{Plant diversity} + e$
+
+## 5E3.
+
+Write down a multiple regression to evaluate the claim: Neither amount of
+funding nor size of laboratory is by itself a good predictor of time to PhD
+degree; but together these variables are both positively associated with
+time to degree. Write down the model definition and indicate which side of
+zero each slope parameter should be on.
+
+$\text{Time to PhD} = f(\text{Funding}, \text{Lab size}) =
+    \alpha + \beta_1 \text{Funding} + \beta_2 \text{Lab size} + e$
+
+$\beta_1, \beta_2 \ge 0$   
+
+# Medium
+
+## 5M1.
+
+Invent your own example of a spurious correlation. An outcome variable
+should be correlated with both predictor variables. But when both predictors
+are entered in the same model, the correlation between the outcome and one
+of the predictors should mostly vanish (or at least be greatly reduced).
+
+Pre-electoral coalitions boost electoral turnout. However, the frequency
+of pre-electoral coalitions and turnout have both been declining over time.
+Once the trend has been included in the model, the positive association
+between PECs and turnout vanishes.
+
+## 5M2.
+
+Invent your own example of a masked relationship. An outcome variable
+should be correlated with both predictor variables, but in opposite
+directions. And the two predictor variables should be correlated with one
+another.
+
+## 5M3. 
+
+It is sometimes observed that the best predictor of fire risk is the presence of firefighters. States and localities with many firefighters also have more fires. Presumably firefighters do not cause fires. Nevertheless, this is not a spurious correlation. Instead fires cause firefighters. Consider the same reversal of causal inference in the context of the divorce and marriage data. How might a high divorce rate cause a higher marriage rate? Can you think of a way to evaluate this relationship, using multiple regression?
+
+## 5M4.
+
+In the divorce data, States with high numbers of Mormons (members of The Church of Jesus Christ of Latter-day Saints, LDS) have much lower divorce rates than the regression models expected. Find a list of LDS population by State and use those numbers as a predictor variable, predicting divorce rate using marriage rate, median age at marriage, and percent LDS population (possibly standardized). You may want to consider transformations of the raw percent LDS variable.
+
+## 5M5. 
+
+One way to reason through multiple causation hypotheses is to imagine detailed mechanisms through which predictor variables may influence outcomes. For example, it is sometimes argued that the price of gasoline (predictor variable) is positively associated with lower obesity rates (outcome variable). However, there are at least two important mechanisms by which the price of gas could reduce obesity. First, it could lead to less driving and therefore more exercise. Second, it could lead to less driving, which leads to less eating out, which leads to less consumption of huge restaurant meals. Can you outline one or more multiple regressions that address these two mechanisms? Assume you can have any predictor data you need.
+
+# Hard
+
+```{r}
+data(foxes)
+head(foxes)
+
+stan_model <- "
+data{
+    int<lower = 0> N;
+    int<lower = 0> K;
+    matrix[N, K] X;
+    vector[N] y;
+}
+
+"
+
+```
