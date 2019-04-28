@@ -1,99 +1,335 @@
+
 ---
-title: "Statistical Rethinking Chapter 3 Practice"
-author: "Dag Tanneberg"
-date: "4/9/2019"
+author: Dag Tanneberg
+title: Statistical Thinking Ch. 5 Practice
+date: 04/13/2019
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r}
+library("tidyverse")
 library("rethinking")
 ```
 
 # Easy
 
-##  5E1
+## 5E1.
 
 Which of the linear models below are multiple linear regressions?
 
-1. $\mu_i = \alpha + \beta x$
-2. $\mu_i = \beta_x x_i + \beta_z z_i$
-3. $\mu_i = \alpha + \beta(x_i - z_i)$
-4. $\mu_i = \alpha + \beta_x x_i + \beta_z z_i$
+1. $\mu_i = \alpha + \beta x_i$ [ ]
+2. $\mu_i = \beta_x x_i + \beta_z z_i [X]
+3. $\mu_i = \alpha + \beta(x_i - z_i)$ [ ]
+4. $\mu_i = \alpha + \beta_x x_i + \beta_z z_i$ [X]
 
-Models (2) and (4) are multiple linear regression models.
+## 5E2
 
-## 5E2.
+Write down a multiple regression to evaluate the claim: _Animal diversity is
+linearly related to latitude, but only after controlling for plant diversity._
+You just need to write down the model definition.
 
-Write down a multiple regression to evaluate the claim: Animal
-diversity is linearly related to latitude, but only after controlling for
-plant diversity. You just need to write down the model definition.
+$\text{Animal Diversity} = \alpha + \beta_1 \text{Latitude} + \beta_2 \text{Plant Diversity} + e$
 
-Variables: Animal diversity, latitude, plant diversity
-Plant diversity is a suppressor of latitude
+## 5E3
 
-$\text{Animal diversity} = f(\text{Latitude}, \text{Plant diversity}) = \alpha + \beta_1 \text{Latitude} + \beta_2 \text{Plant diversity} + e$
-
-## 5E3.
-
-Write down a multiple regression to evaluate the claim: Neither amount of
+Write down a multiple regression to evaluate the claim: _Neither amount of
 funding nor size of laboratory is by itself a good predictor of time to PhD
-degree; but together these variables are both positively associated with
-time to degree. Write down the model definition and indicate which side of
-zero each slope parameter should be on.
+degree; but together these variables are both positively associated with time
+to degree_. Write down the model definition and indicate which side of zero
+each slope parameter should be on.
 
-$\text{Time to PhD} = f(\text{Funding}, \text{Lab size}) =
-    \alpha + \beta_1 \text{Funding} + \beta_2 \text{Lab size} + e$
+1. $\text{Time to PhD} = \alpha + \beta_1 \text{Funding}$
+2. $\text{Time to PhD} = \alpha + \beta_2 \text{Lab Size}$
+3. $\text{Time to PhD} = \alpha + \beta_1 \text{Funding} + \beta_2 \text{Lab Size}$
 
-$\beta_1, \beta_2 \ge 0$   
+## 5E4
+
+Suppose you have a single categorical predictor with 4 levels (unique values),
+labeled A, B, C and D. Let $A_i$ be an indicator variable that is 1 where case
+$i$ is in category A. Also suppose $B_i , C_i , and D_i$ for the other
+categories. Now which of the following linear models are inferentially
+equivalent ways to include the categorical variable in a regression? Models are
+inferentially equivalent when it’s possible to compute one posterior
+distribution from the posterior distribution of another model.
+
+1. $\mu_i = \alpha + \beta_A A_i + \beta_B B_i + \beta_C B_i$
+2. $\mu_i = \alpha + \beta_A A_i + \beta_B B_i + \beta_C C_i + \beta_D D_i$
+3. $\mu_i = \alpha + \beta_B B_i + \beta_C C_i + \beta_D D_i$
+4. $\mu_i = \alpha_A A_i + \alpha_B B_i + \alpha_C C_i + \alpha_D D_i$
+5. $\mu_i = \alpha_A(1 - B_i - C_i - D_i) + \alpha_B B_i \alpha_C C_i + \alpha_D D_i$
+
+Model 1 is inferentially equivalent to Model 3. Each reflects a mean adjustment
+model for $\mu$, but they differ on the chosen baseline. In Model 1 $\alpha = \beta_D$
+and in Model 3 $\alpha = \beta_A$. Model 2, in contrast, is not identified because
+it includes all indicator variables simultaneously. Their effects are perfectly
+collinear. Dropping the intercept $\alpha$ would solve the problem and transform
+the Model 2 into Model 4.
+
+Models 4 and 5 are inferentially equivalent because
+$(1 - B_i - C_i - D_i) = 1 \iff B_i = C_i = D_i = 0$. This observation $i$ must
+therefore be in category A, and thus: $\alpha_A(1 - B_i - C_i - D_i) = \alpha_A A_i$.
 
 # Medium
 
 ## 5M1.
 
-Invent your own example of a spurious correlation. An outcome variable
-should be correlated with both predictor variables. But when both predictors
-are entered in the same model, the correlation between the outcome and one
-of the predictors should mostly vanish (or at least be greatly reduced).
+Invent your own example of a spurious correlation. An outcome variable should
+be correlated with both predictor variables. But when both predictors are
+entered in the same model, the correlation between the outcome and one of the
+predictors should mostly vanish (or at least be greatly reduced).
 
-Pre-electoral coalitions boost electoral turnout. However, the frequency
-of pre-electoral coalitions and turnout have both been declining over time.
-Once the trend has been included in the model, the positive association
-between PECs and turnout vanishes.
+Electoral turnout in democracies declines over time and increases in the
+presence pre-electoral coalitions. However, pre-electoral coalitions became
+rarer over time as well. Hence, when controlling for time, i.e. detrending the
+data, the association between turnout and pre-electoral coalitions turns out
+spurious.
 
 ## 5M2.
 
-Invent your own example of a masked relationship. An outcome variable
-should be correlated with both predictor variables, but in opposite
-directions. And the two predictor variables should be correlated with one
-another.
+Invent your own example of a masked relationship. An outcome variable should be
+correlated with both predictor variables, but in opposite directions. And the
+two predictor variables should be correlated with one another.
 
-## 5M3. 
+Parliamentary government systems are directly associated with stable democracy.
+At the same time, a history of military intervention into politics is
+indirectly associated with stable democracy, e.g., Latin America. Usually,
+parliamentary democracies do not have a history of military intervention into
+politics.
 
-It is sometimes observed that the best predictor of fire risk is the presence of firefighters. States and localities with many firefighters also have more fires. Presumably firefighters do not cause fires. Nevertheless, this is not a spurious correlation. Instead fires cause firefighters. Consider the same reversal of causal inference in the context of the divorce and marriage data. How might a high divorce rate cause a higher marriage rate? Can you think of a way to evaluate this relationship, using multiple regression?
+## 5M3.
 
-## 5M4.
+It is sometimes observed that the best predictor of fire risk is the presence
+of firefighters. States and localities with many firefighters also have more
+fires. Presumably firefighters do not cause fires. Nevertheless, this is not a
+spurious correlation. Instead fires cause firefighters. Consider the same
+reversal of causal inference in the context of the divorce and marriage data.
+How might a high divorce rate cause a higher marriage rate? Can you think of a
+way to evaluate this relationship, using multiple regression?
 
-In the divorce data, States with high numbers of Mormons (members of The Church of Jesus Christ of Latter-day Saints, LDS) have much lower divorce rates than the regression models expected. Find a list of LDS population by State and use those numbers as a predictor variable, predicting divorce rate using marriage rate, median age at marriage, and percent LDS population (possibly standardized). You may want to consider transformations of the raw percent LDS variable.
+Assume some policy grants cheap loans to newly weds, regardless of how often
+individuals were already married. Hence, individuals have strong incentive to
+get married again should they divorce their partner.
 
-## 5M5. 
+5M4.
 
-One way to reason through multiple causation hypotheses is to imagine detailed mechanisms through which predictor variables may influence outcomes. For example, it is sometimes argued that the price of gasoline (predictor variable) is positively associated with lower obesity rates (outcome variable). However, there are at least two important mechanisms by which the price of gas could reduce obesity. First, it could lead to less driving and therefore more exercise. Second, it could lead to less driving, which leads to less eating out, which leads to less consumption of huge restaurant meals. Can you outline one or more multiple regressions that address these two mechanisms? Assume you can have any predictor data you need.
-
-# Hard
+In the divorce data, States with high numbers of Mormons (members of The Church
+of Jesus Christ of Latter-day Saints, LDS) have much lower divorce rates than
+the regression models expected. Find a list of LDS population by State and use
+those numbers as a predictor variable, predicting divorce rate using marriage
+rate, median age at marriage, and percent LDS population (possibly
+standardized). You may want to consider transformations of the raw percent LDS
+variable.
 
 ```{r}
-data(foxes)
-head(foxes)
+data(WaffleDivorce)
+lds <- read.csv2("~/github/learning/rethinking/lds_pop.csv", stringsAsFactors = FALSE)
+lds <- mutate(lds, lds_per = str_replace(lds_per, "%", "")) %>%
+    mutate(lds_per = str_replace(lds_per, ",", ".")) %>%
+    mutate(lds_per = as.numeric(lds_per))
+names(WaffleDivorce) <- str_to_lower(names(WaffleDivorce))
+WaffleDivorce <- left_join(WaffleDivorce, lds, by = "location")
 
+summary(WaffleDivorce$lds_per)
+car::symbox(WaffleDivorce$lds_per)
+plot(WaffleDivorce$lds_per, WaffleDivorce$lds_per^(-1))
+WaffleDivorce <- mutate(WaffleDivorce, inv_lds_per = lds_per^(-1))
+
+stan_data <- list(
+    y = WaffleDivorce$divorce,
+    X = cbind(1, mar = WaffleDivorce$marriage,
+        age = WaffleDivorce$medianagemarriage, lds = WaffleDivorce$inv_lds_per
+    ),
+    N = nrow(WaffleDivorce),
+    K = 4
+)
 stan_model <- "
-data{
-    int<lower = 0> N;
-    int<lower = 0> K;
-    matrix[N, K] X;
-    vector[N] y;
-}
+    data {
+        int<lower = 0> N;
+        int<lower = 1> K;
+        matrix[N, K] X;
+        vector[N] y;
+    }
+    parameters {
+        vector[K] beta;
+        real<lower=0> sigma;
+    }
+    model {
+        y ~ normal(X * beta, sigma);
+        beta ~ normal(0, 1);
+        sigma ~ exponential(1);
+    }
 
 "
-
+stan_fit <- stan(model_code = stan_model, data = stan_data)
+post <- rstan::extract(stan_fit)
+mean(post$beta[, 4] > 0); plot(density(post$beta[, 4]))
 ```
+
+Mormon creed has the expected negative effect on divorce rate. However, that
+effect is quite uncertain because (a) a sizable part of the posterior extends
+beyond 0, and (b) the result is quite sensitive to adjustment of the prior
+(not shown). More definite results require stronger priors.
+
+## 5M5.
+
+One way to reason through multiple causation hypotheses is to imagine detailed
+mechanisms through which predictor variables may influence outcomes. For
+example, it is sometimes argued that the price of gasoline (predictor variable)
+is positively associated with lower obesity rates (outcome variable). However,
+there are at least two important mechanisms by which the price of gas could
+reduce obesity. First, it could lead to less driving and therefore more
+exercise. Second, it could lead to less driving, which leads to less eating out,
+which leads to less consumption of huge restaurant meals. Can you outline one
+or more multiple regressions that address these two mechanisms? Assume you can
+have any predictor data you need.
+
+Testing each mechanism requires (partially) blocking the path from fuel price
+to obesity.
+
+- Path 1 Fuel Price -> Exercise -> Obesity: Assume you have daily, individual
+    level measurements of fuel price per liter last paid, steps taken, and
+    weight. In this model, the effect fuel price on weight should by
+    substantially diminished by steps taken.
+- Path 2 Fuel Price -> Eating Out -> Calorie Intake while eating out -> Weight:
+    In this scenario, including any of the intervening variables should attenuate
+    the effect of fuel price. Note that "Calorie Intake while eating out" is
+    only a more precise measurement of "Eating out". Therefore, you might
+    consider including only the former in your analysis (multicollinearity).
+
+```{r, foxes}
+data(foxes)
+str(foxes)
+summary(foxes)
+car::scatterplotMatrix(foxes[, -1])
+
+# (a) Bivariate regression on area
+stan_data <- list(y = foxes$weight, X = cbind(1, foxes$area), N = nrow(foxes), K = 2)
+stan_area <- stan(model_code = stan_model, data = stan_data)
+stan_area
+post <- rstan::extract(stan_area)
+
+X_pred <- cbind(1, seq(min(foxes$area), max(foxes$area), length.out = 30))
+plot(foxes$area, foxes$weight)
+postmu_samples <- sample(seq(nrow(post[["beta"]])), 100, replace = TRUE)
+postmu_linpred <- X_pred %*% t(post[["beta"]][postmu_samples, ])
+for (i in seq(ncol(postmu_linpred))) {
+    lines(X_pred[, 2], postmu_linpred[, i], col = "grey75")
+}
+
+postmu_beta <- apply(post$beta, 2, mean)
+postmu_ci <- apply(post$beta, 2, HPDI, prob = .95)
+postmu_linpred <- X_pred %*% postmu_beta
+lines(X_pred[, 2], postmu_linpred, col = "red")
+
+# (b) Bivariate regression on groupsize
+stan_data <- list(y = foxes$weight, X = cbind(1, foxes$groupsize), N = nrow(foxes), K = 2)
+stan_groupsize <- stan(model_code = stan_model, data = stan_data)
+stan_groupsize
+post <- rstan::extract(stan_groupsize)
+
+X_pred <- cbind(1, seq(min(foxes$groupsize), max(foxes$groupsize), length.out = 30))
+plot(foxes$groupsize, foxes$weight)
+postmu_samples <- sample(seq(nrow(post[["beta"]])), 100, replace = TRUE)
+postmu_linpred <- X_pred %*% t(post[["beta"]][postmu_samples, ])
+for (i in seq(ncol(postmu_linpred))) {
+    lines(X_pred[, 2], postmu_linpred[, i], col = "grey75")
+}
+
+postmu_beta <- apply(post$beta, 2, mean)
+postmu_ci <- apply(post$beta, 2, HPDI, prob = .95)
+postmu_linpred <- X_pred %*% postmu_beta
+lines(X_pred[, 2], postmu_linpred, col = "red")
+```
+
+Neither predictor looks important. However, group size and are strongly
+positively correlated. If area increases weight and group size decreases it,
+then their effects will cancel out unless simultaneously accounted for.
+
+## 5H2.
+
+Now fit a multiple linear regression with weight as the outcome and both area
+and groupsize as predictor variables. Plot the predictions of the model for
+each predictor, holding the other predictor constant at its mean. What does
+this model say about the importance of each variable? Why do you get different
+results than you got in the exercise just above?
+
+```{r}
+stan_data <- list(y = foxes$weight, X = cbind(1, foxes$area, foxes$groupsize),
+    N = nrow(foxes), K = 3
+)
+stan_5H2 <- stan(model_code = stan_model, data = stan_data)
+stan_5H2
+```
+
+Now Stan supports a strong positive effect of area and a strong negative effect
+of group size. Both predictors strongly influence the outcome, but because they
+are also inversely associated each masks the effect of the other.
+
+## 5H3
+
+Finally, consider the avgfood variable. Fit two more multiple regressions:
+(1) body weight as an additive function of avgfood and groupsize, and (2) body
+weight as an additive function of all three variables, avgfood and groupsize
+and area. Compare the results of these models to the previous models you’ve fit,
+in the first two exercises. (a) Is avgfood or area a better predictor of body
+weight? If you had to choose one or the other to include in a model, which
+would it be? Support your assessment with any tables or plots you choose.
+(b) When both avgfood or area are in the same model, their effects are reduced
+(closer to zero) and their standard errors are larger than when they are
+included in separate models. Can you explain this result?
+
+### 5H3.I
+
+```{r}
+cor(foxes[, -1])
+# Note: Average food is strongly associated with groupsize and area.
+#   Multicollinearity may be an issue
+```
+
+```{r}
+# (1) weight ~ avgfood + groupsize
+stan_data <- list(y = foxes$weight,
+    X = cbind(1, foxes$avgfood, foxes$groupsize), N = nrow(foxes), K = 3
+)
+stan_5H3.1 <- stan(model_code = stan_model, data = stan_data)
+stan_data <- list(y = foxes$weight,
+    X = cbind(1, foxes$avgfood, foxes$area, foxes$groupsize),
+    N = nrow(foxes), K = 4
+)
+stan_5H3.2 <- stan(model_code = stan_model, data = stan_data)
+stan_5H2; stan_5H3.1; stan_5H3.2
+```
+### 5H3.II
+
+Since I didn't scale the variables, I cannot directly compare the effect
+estimates. I can, however, compare $R^2 = 1 - RSS / TSS$.
+
+```{r}
+TSS <- sum((foxes$weight - mean(foxes$weight)) ^ 2)
+# RSS_5H2
+post <- rstan::extract(stan_5H2)
+postmu_beta <- apply(post[["beta"]], 2, mean)
+linpred <- cbind(1, foxes$area, foxes$groupsize) %*% postmu_beta
+RSS_5H2 <- sum((foxes$weight - linpred) ^ 2)
+1 - RSS_5H2 / TSS
+# RSS_5H3.1
+post <- rstan::extract(stan_5H3.1)
+postmu_beta <- apply(post[["beta"]], 2, mean)
+linpred <- cbind(1, foxes$avgfood, foxes$groupsize) %*% postmu_beta
+RSS_5H3.1 <- sum((foxes$weight - linpred) ^ 2)
+1 - RSS_5H3.1 / TSS
+```
+In terms of explained variance, avgfood seems to be the better predictor.
+
+### 5H3.III
+
+```{r}
+ggplot(data = foxes, aes(x = area, y = avgfood, colour = factor(groupsize))) +
+    geom_point() + geom_smooth(method = "lm", se = FALSE) +
+    geom_smooth(aes(colour = NULL), method = "lm")
+lm(avgfood ~ 0 + area, data = as.data.frame(apply(foxes, 2, scale)))
+lm(avgfood ~ 0 + area + groupsize, data = as.data.frame(apply(foxes, 2, scale)))
+```
+
+Group size is a common correlate of avgfood and area. When controlling
