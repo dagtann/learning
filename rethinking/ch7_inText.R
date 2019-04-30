@@ -38,6 +38,15 @@ N <- nrow(species)
 X <- cbind(1, species[["mass_std"]]); K <- ncol(X)
 y <- species[["brain_std"]]
 
+m7.1 <- rethinking::map(
+    alist(
+        brain_std ~ dnorm( mu , exp(log_sigma) ),
+        mu <- a + b*mass_std,
+        a ~ dnorm( 0.5 , 1 ),
+        b ~ dnorm( 0 , 10 ),
+        log_sigma ~ dnorm( 0 , 1 ) ), data=as.data.frame(species)
+    )
+)
 m7.1_stan <- stan(
     model_code = code_m7.1, data = list(N = N, K = K, X = X, y = y), init = 0
 )
@@ -56,11 +65,7 @@ calc_R2 <- function(stan_model, X, y){
 
 ### Demonstrate overfitting
 generate_polynomials <- function(x, max_degree){
-    out <- matrix(0, nrow = length(x), ncol = max_degree)
-    for(i in seq(max_degree)){
-        out[, i] <- x ^ i
-    }
-    return(out)
+    vapply(seq(max.degree), FUN = function(d){x ^ d}, numeric(length(x)))
 }
 max_degree <- 6
 R2_estimates <- vector("numeric", length = max_degree)
@@ -135,7 +140,11 @@ for (i in seq(nrow(species))) {
 # Kullback-Leibler divergence
 #   D_{KL}(p. q) = \sum_{i = 1}^N p_i(log(p_i) - log(q_i)) = \sum_{i = 1}^N log(\frac{p_i}{q_i})
 # -> if p = q then D_{KL} = 0
-
+# Key step in derivation: Cross entropy
+# H(p, q) = - \sum_{i=1}^N p_i log(q_i)
+# Divergence measures the *additional* entropy induced by using q to describe p
+# So divergence really is measuring how far q is from the target p, in units of entropy.
+# D_{KL}(p. q) = H(p, q) - H(p) = \sum_{i = 1}^N p_i(log(p_i) - log(q_i)) - (-E(log(pi))) = \sum_{i = 1}^N log(\frac{p_i}{q_i})
 steps <- 100
 pdta <- expand.grid(p = .3, q = seq(0.01, .99, length.out = steps))
 pdta[, "divergence"] <- pdta[, 1] * log(pdta[, 1] / pdta[, 2])
@@ -145,3 +154,54 @@ abline(v = .3, lty = "dashed")
 text(x = .35, y = 1.5, labels = expression(q == p))
 
 # Problem: How do we estimate divergence in real statistical modeling
+# -> Answer: Deviance
+# Complicating circumstance: p is unknownn, i.e. the target probability
+# distribution is unknown
+# Note: We are only interested in comparing the divergence of different candidate
+# descriptions of p, say q and r. E(log(p_i)) is inconsequential for the distance
+# between these candidate descriptions. The only requirement of that comparison
+# is each model's average log-probability E(log(q_i)) & E(log(p_i)). These can
+# be approximated by the sum of logged probabilities: S(q) = \sum_{i = 1}^N log(q_i)
+# Bayesian version: log-probabilty predictive density (lppd)
+# lppd(y, \Theta) = \sum_{i = 1}^N log(\frac{1}{S} \sum_{s = 1}^S p(y_i | \Theta_s))
+
+set.seed(1) lppd( m7.1 , n=1e4 )
+
+calculate_lppd <- function(stan_model){
+
+}
+str(post)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
