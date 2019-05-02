@@ -165,43 +165,93 @@ text(x = .35, y = 1.5, labels = expression(q == p))
 # Bayesian version: log-probabilty predictive density (lppd)
 # lppd(y, \Theta) = \sum_{i = 1}^N log(\frac{1}{S} \sum_{s = 1}^S p(y_i | \Theta_s))
 
-set.seed(1) lppd( m7.1 , n=1e4 )
+N <- 1000
+K <- 5
+beta <- c(.15, -.4, 0, 0, 0)
+X <- MASS::mvrnorm(N, rep(0, K), diag(K))
+y <- X %*% beta + rnorm(N, 0, 1)
+X_test <- MASS::mvrnorm(N, rep(0, K), diag(K))
+y_test <- X %*% beta + rnorm(N, 0, 1)
+deviance_train <- vapply(1:K,
+    FUN = function(x){deviance(lm(y ~ X[, 1:x]))}, FUN.VALUE = numeric(1)
+)
+deviance_train
 
-calculate_lppd <- function(stan_model){
+### 7.5.2
+primates <- read_csv2("/Users/dag/github/learning/rethinking/Primates301.csv")
+str(primates)
+primates[sample(1:nrow(primates), 20, replace = FALSE), ]
+data_to_fit <- select(primates, longevity, brain, body) %>%
+    filter_all(all_vars(!is.na(.))) %>%
+    mutate_all(all_vars(log(.)))
+summary(data_to_fit); dim(data_to_fit)
 
+primate_stan <- "
+    data {
+        int<lower = 0> N;
+        int<lower = 0> K;
+        matrix[N, K] X;
+        vector[N] y;
+    }
+    parameters {
+        vector[K] beta;
+        real<lower=0> sigma;
+    }
+    model {
+        y ~ normal(X * beta, sigma);
+        beta ~ normal(0, .5);
+        beta[1] ~ normal(0, .1);
+        sigma ~ exponential(1);
+    }
+
+"
+y <- data_to_fit[["brain"]]
+N <- nrow(data_to_fit)
+X <- cbind(1, data_to_fit[, -1])
+K <- ncol(X)
+fit_stan <- stan(model_code = primate_stan, data = list(y = y, X = X, N = N, K = K))
+for (i in 2:3) {
+    X <- cbind(1, data_to_fit[, i])
+    K <- ncol(X)
+    assign(
+        paste0("fit_stan", i),
+        stan(model_code = primate_stan, data = list(y = y, X = X, N = N, K = K))
+    )
 }
-str(post)
+fit_stan2
+fit_stan3
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+m7.8 <- rethinking::map(
+    alist(
+        longevity ~ dnorm(mu, sigma),
+        mu <- a + bM * body + bB * brain,
+        a ~ dnorm(0, .1),
+        bM ~ dnorm(0,.5),
+        bB ~ dnorm(0,.5),
+        sigma ~ dexp(1)
+    ),
+    data = as.data.frame(data_to_fit)
+)
+m7.9 <- rethinking::map(
+    alist(
+        longevity ~ dnorm(mu, sigma),
+        mu <- a + bM * body,
+        a ~ dnorm(0, .1),
+        bM ~ dnorm(0,.5),
+        sigma ~ dexp(1)
+    ),
+    data = as.data.frame(data_to_fit)
+)
+m7.10 <- rethinking::map(
+    alist(
+        longevity ~ dnorm(mu, sigma),
+        mu <- a + bB * brain,
+        a ~ dnorm(0, .1),
+        bB ~ dnorm(0,.5),
+        sigma ~ dexp(1)
+    ),
+    data = as.data.frame(data_to_fit)
+)
+set.seed(301)
+compare(m7.8, m7.9, m7.10)
