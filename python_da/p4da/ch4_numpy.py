@@ -104,7 +104,7 @@ data[names == "Bob"] # indexes rows 0 and 4
 
 data[names == "Bob", 2:]
 data[names != "Bob"]  # select everything but Bob
-data[~(names != "Bob")] # select nothing but Bob, ~ negates the condition
+data[~(names != "Bob")]  # select nothing but Bob, ~ negates the condition
 # combine conditions using &, |
 mask = (names == "Bob") | (names == "Will")
 data[mask]
@@ -113,9 +113,77 @@ data[data < 0] = 0
 data[names != "Joe"] = 7
 
 # Fancy indexing
+# = indexing using integer arrays
 arr = np.empty((8, 4))
 for i in range(8):
-    arr[i] = i
+    arr[i] = i  # replace axis 0 position i
 # select a subset of rows
 arr[[4, 3, 0, 6]]
 arr[[-3, -5, -7]]  # select rows from the end
+
+# ATTENTION: When given multiple index arrays, NumPy will create tuples
+# The result of such indexing will ALWAYS be one-dimensional
+arr = np.arange(32).reshape((8, 4))
+arr[[1, 5, 7, 2], [0, 3, 1, 2]]  # equiv to (1, 0), (5, 3), ...
+
+# transposing arrays and swapping axes
+# transposition = special case of reshape
+arr = np.arange(15).reshape((3, 5))
+arr
+arr.T  # Transpose
+
+arr = np.random.randn(6, 3)
+np.dot(arr, arr) # won't work
+np.dot(arr, arr.T) # will work
+
+# for higher dimensional arrays transpose accepts a TUPLE of axis numbers to
+# permute axes
+arr = np.arange(16).reshape((2, 2, 4))
+arr.transpose(1, 0, 2) # axis reordered as stated, method .T is special case (1, 0)
+
+arr = np.arange(16).reshape((8, 2))
+(arr.T == arr.transpose(1, 0)).all()
+
+# Universal functions ufunc
+#   is: function that performs vectorized operations on ndarrays
+#   examples: sqrt, exp
+arr = np.arange(10)
+np.sqrt(arr)
+np.exp(arr)
+
+# unary functions allow an optional out argument, allowing in-place operations
+arr = np.random.randn(7) * 5
+np.sqrt(arr, arr)
+
+# Array-oriented programming with arrays
+
+# Example evaluate (x ^ 2 + y ^ 2) ^ (1 / 2) across a regular grid of values
+points = np.arange(-5, 5, 0.01)
+xs, ys = np.meshgrid(points, points)
+z = np.sqrt(np.square(xs) + np.square(ys))
+
+points = np.arange(4)
+xs, ys = np.meshgrid(points, points)
+z = np.sqrt(np.square(xs) + np.square(ys))
+
+import matplotlib.pyplot as plt
+plt.imshow(z, cmap=plt.cm.gray); plt.colorbar()
+plt.title("Image plot of $\sqrt{x^2 + y^2}$ for a grid of values")
+plt.show()
+
+# Random number operations
+# Example: Random walk. Starting from 0 add 1 with probability .5 and -1 otherwise
+import random
+np.seed(1999)
+position = 0.0
+n_steps = int(1e3)
+walk = list()
+for i in range(n_steps):
+    cond = random.randint(0, 1)
+    print("Condition:", cond)
+    step = 1 if cond else -1
+    print("Step:", step)
+    position += step
+    walk.append(position)
+plt.plot(walk)
+plt.show()
