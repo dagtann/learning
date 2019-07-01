@@ -76,6 +76,72 @@ ser[~ser.isin(ser.value_counts().index[:2])] = "Other"
 ser
 
 # 11 Bin a numeric series to 10 groups of equal size
+ser = pd.Series(np.random.random(20))
+ser_cut1 = pd.cut(ser, bins=10, retbins=False)  # my solution
+pd.Series(ser_cut1).value_counts()  # does not ensure equally populated bins
+ser_cut2 = pd.qcut(ser, q=np.arange(0, 1.1, .1),
+                   labels=['1st', '2nd', '3rd', '4th', '5th', '6th', '7th',
+                   '8th', '9th', '10th'])
+
+pd.Series(ser_cut2).value_counts()  # ensures equally populated bins
+
+# 12 Convert a numpy array to a dataframe of given shape
+ser = pd.Series(np.random.randint(1, 10, 35))  # convert to shape=(7, 5)
+pd.DataFrame(np.array(ser).reshape((7, 5)))  # my solution
+pd.DataFrame(ser.values.res hape(7, 5))  # smarter solution
 
 
+# 13 Find the positions of numbers that are multiples of 3 from a series
+ser = pd.Series(np.random.randint(1, 10, 7))
+ser.index[(ser % 3) == 0]  # My solution: Boolean subsetting
+np.argwhere(ser % 3 == 0)
 
+import pandas as pd
+import numpy as np
+
+# 14
+ser = pd.Series(list('abcdefghijklmnopqrstuvwxyz'))
+pos = [0, 4, 8, 14, 20]
+ser2 = ser[pos]
+
+# 15
+ser1 = pd.Series(range(5))
+ser2 = pd.Series(list('abcde'))
+ser1.append(ser2)  # my solution
+pd.concat([ser1, ser2], axis=0)
+pd.concat([ser1, ser2], axis=1)
+
+# 16
+ser1 = pd.Series([10, 9, 6, 5, 3, 1, 12, 8, 13])
+ser2 = pd.Series([1, 3, 10, 13])
+ser1[ser1.isin(ser2)].index  # my solution
+
+[np.where(i == ser1)[0].tolist()[0] for i in ser2]
+[pd.Index(ser1).get_loc(i) for i in ser2]
+
+# 17
+truth = pd.Series(range(10))
+pred = pd.Series(range(10)) + np.random.random(10)
+pd.Series((pred - truth) ** 2).mean()  # my solution
+
+np.mean((pred - truth) ** 2)
+
+# 18
+ser = pd.Series(["how", "to", "kick", "ass?"])
+ser_capitalized = [s[0].upper() + s[1:] for s in ser]  # my solution
+# draw back: returns a list, possibly informative index is lost
+
+# better
+ser.map(lambda x: x[0].upper() + x[1:])
+
+# even better
+ser.map(lambda x: x.title())
+
+# 19
+ser = pd.series(["how", "to", "kick", "ass"])
+ser.map(lambda x: len(x))
+
+# 20
+ser = pd.Series([1, 3, 6, 10, 15, 21, 27, 35])
+ser.diff(1).tolist()
+ser.diff(2).tolist()
