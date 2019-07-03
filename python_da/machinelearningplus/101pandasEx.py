@@ -78,4 +78,30 @@ ser
 # 11 Bin a numeric series to 10 groups of equal size
 
 
+# 26 Get mean of a series grouped by another series
+fruit = pd.Series(np.random.choice(["apple", "banana", "carrot"], 10))
+weights = pd.Series(np.linspace(1, 10, 10))
+print(weights.tolist())
+print(fruit.tolist())
+weights.groupby(fruit).mean()
 
+# 27 Compute the euclidean distance between two series
+p = pd.Series(np.arange(1, 11))
+q = pd.Series([10, 9, 8, 7, 6, 5, 4, 3, 2, 1])
+sum((p - q) ** 2) ** (1 / 2)
+
+
+# 28 find all the local maxima in a series
+ser = pd.Series([2, 10, 3, 4, 9, 10, 2, 7, 3])
+np.sign(np.diff(ser, 2))
+dd = np.diff(np.sign(np.diff(ser)))
+np.where(dd == -2)[0] + 1
+
+
+# 29 Replace missing spaces with least frequence string
+my_str = 'dbc deb abed gade'
+freqs = {}
+for s in my_str:
+    freqs[s] = 1 + freqs.get(s, 0)
+
+pd.Series(my_str).str.replace(" ", freqs.index[freqs == freqs.min()][0])
