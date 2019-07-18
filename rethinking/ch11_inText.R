@@ -78,3 +78,78 @@ mu <- N * p
 sigma <- N * p * (1 - p)
 plot(p, mu - sigma, type = 'l', col = "blue")
 lines(p, sigma, col = "red")
+
+
+library("rethinking")
+# True DGP
+num_days <- 30
+y <- rpois(num_days, 1.5)
+
+num_weeks <- 4
+y_new <- rpois(num_weeks, .5 * 7)
+
+y_all <- c(y, y_new)
+exposure <- c(rep(1, 30), rep(7, 4))
+monastary <- c(rep(0, 30), rep(1, 4))
+d <- data.frame(y = y_all, days = exposure, monastary = monastary)
+
+# calculate offset
+d[, "ldays"] <- log(d$days)
+
+# fit model
+fit <- m11.12 <- map(
+    alist(
+        y ~ dpois(lambda),
+        log(lambda) <- ldays + a + b * monastary,
+        a ~ dnorm(0, 1),
+        b ~ dnorm(0, 1)
+    ),
+    data = d
+)
+precis(fit, depth = 2)
+
+post <- extract.samples(fit)
+lambda_old <- exp(post$a)
+lambda_new <- exp(post$a + post$b)
+precis(data.frame(lambda_old, lambda_new))
+
+# Reformulate multinomial regression problem as poisson
+data(UCBadmit)
+d <- UCBadmit
+
+# logit
+fit_logit <- map(
+    alist(
+        admit ~ dbinom(applications, p),
+        logit(p) <-  a,
+        a ~ dnorm(0, 10)
+    ),
+    data = d
+)
+summary(fit_logit)
+
+# poisson
+d[, "rej"] <- d$reject
+m_pois <- map2stan(
+    alist(
+        admit ~ dpois(lambda1),
+        rej ~ dpois(lambda2),
+        log(lambda1) <- a1,
+        log(lambda2) <- a2,
+        c(a1, a2) ~ dnorm(0, 100)
+    ),
+    data = d
+)
+logistic(coef(fit_logit))
+k <- as.numeric(coef(m_pois))
+exp(k[1]) / (exp(k[1]) + exp(k[2]))
+
+
+# Survival models
+N <- 2
+x <- replicate(1e5, min(runif(N, 1, 100)))
+plot(density(x), ylim = c(0, .06))
+
+N2 <- 5
+x2 <- replicate(1e5, min(runif(N2, 1, 100)))
+lines(density(x2), col = "red", add = TRUE)

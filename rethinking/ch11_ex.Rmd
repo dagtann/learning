@@ -1,0 +1,38 @@
+---
+output = html_document
+author = "Dag Tanneberg"
+date = "07/09/2019"
+---
+
+# Easy
+
+## 10E1. If an event has probability 0.35, what are the log-odds of this event?
+
+The log-odds (logit) of an event with probability p are defined as $logit(p) \equiv \frac{p}{1 - p}$. Thus, $logit(p) = log(\frac{.35}{1 - .35}) \approx -0.619$.
+
+## 10E2. If an event has log-odds 3.2, what is the probability of this event?
+
+\begin{align}
+    logit(p) &= \frac{p}{1 - p} \\
+    logit(p)(1-p) &= p \\
+    logit(p) &= p + logit(p)p \\
+    logit(p) &= p(1 + logit(p)) \\
+    \frac{logit(p)}{1 + logit(p)} &= p \\
+    \frac{3.2}{1 + 3.2} &\approx 0.762
+\end{align}
+
+## 10E3. Suppose that a coefficient in a logistic regression has value 1.7. What does this imply about the proportional change in odds of the outcome?
+
+Regression coefficients on the odds scale denote the proportional change in the odds of the outcome given a change of the predictor. In other words, $odds(E | \Delta x) = odds(E) * \beta * \Delta x$. In this particular case, the probability of the event increases by seventy percent for each unit of change in x.
+
+## 10E4. Why do Poisson regressions sometimes require the use of an offset? Provide an example.
+
+Poisson regression models the incidence rate of a binomial
+process with unknown number of trials. Its expected value, $\lambda$ implicitly equals the expected number of event per time interval: $\lambda = \frac{\mu}{\tau}$. Observation units that differ on the parameter ${\tau}$ differ on their exposure to the data generating process and, thus, their expected number of events follow different time scales. An offset incorporates scaling differences into a Poisson regression model. More precisely:
+\begin{align}
+    y_i &\sim Poisson(\lambda_i) \\
+    log(\lambda_i) &= log(\frac{\mu_i}{\tau_i}) = X\beta \\
+    log(\lambda_i) + log(\tau_i) &= log(\mu_i) = log(\tau_i) + X\beta
+\end{align}
+
+# Medium
