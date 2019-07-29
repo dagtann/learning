@@ -25,4 +25,28 @@ fruit_cat = df["fruit"].astype("category").values
 fruit_cat
 fruit_cat.categories
 fruit_cat.codes
-df["fruit"] = df["fruit"].astype("category")
+df["fruit"] = df["fruit"].astype("category")  # type conversion by assignment
+my_categores = pd.Categorical(["foo", "bar", "baz", "foo", "bar"])  # categorical by declaration
+my_categores.codes
+
+# example: from_codes constructor
+categories = ["foo", "bar", "baz"]
+codes = [0, 1, 2, 0, 0, 1]
+my_categories_2 = pd.Categorical.from_codes(codes, categories)
+my_categories_2
+# use ordered=True to indicate ordered categories
+# as method as_ordered() to convert unordered to ordered cateforical data
+# categorical arrays can consist of any immutable value types
+pd.Categorical([1, 2, 1, 1])
+
+# Computation with categoricals
+np.random.seed(12345)
+draws = np.random.randn(1000)
+draws[:5]
+bins = pd.qcut(draws, 4)  # compute quartile binning
+bins
+bins = pd.qcut(draws, 4, labels=[f"Q{i}" for i in range(1, 5)])  # assign different labels
+bins
+
+
+"".join(["1", "2", "3", "4"])
