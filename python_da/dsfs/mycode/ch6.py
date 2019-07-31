@@ -1,6 +1,7 @@
 # Ch 6: Probability
 import enum, random
 from matplotlib import pyplot as plt
+from Collections import Counter
 
 ## Conditional Probability
 class Kid(enum.Enum):
@@ -85,9 +86,9 @@ def normal_pdf(x: float, mu: float = 0, sigma: float = 1) -> float:
 
 xs = [_ / 10 for _ in range(-50, 51)]
 
-plt.plot(xs, [normal_pdf(x) for x in xs], "-", label = "mu=0, sigma=1")
-plt.plot(xs, [normal_pdf(x, 0, 3) for x in xs], "--", label = "mu=0, sigma=3")
-plt.plot(xs, [normal_pdf(x, 0, 1 / 3) for x in xs], ":", label = "mu=0, sigma=1/3")
+plt.plot(xs, [normal_pdf(x) for x in xs], "-", label="mu=0, sigma=1")
+plt.plot(xs, [normal_pdf(x, 0, 3) for x in xs], "--", label="mu=0, sigma=3")
+plt.plot(xs, [normal_pdf(x, 0, 1 / 3) for x in xs], ":", label="mu=0, sigma=1/3")
 plt.legend()
 plt.title("Various Normal PDFs")
 plt.show()
@@ -124,13 +125,14 @@ def inverse_normal_cdf(p: float,
             hi_z = mid_z
     return mid_z
 
-inverse_normal_cdf(.975, tol = 1e-6)
+
+inverse_normal_cdf(.975, tol=1e-6)
 
 ### Central limit theorem
-# If x_1, ..., x_n are random variables with mean mu and stadnard deviation sigma,
-# then 1/n sum_n(x) is approximately normal with standard deviation sigma / sqrt(n)
-# Equivalently: (sum_n(x) - mu * n) / (sigma * sqrt(n)) is approximately standard
-# normal.
+# If x_1, ..., x_n are random variables with mean mu and stadnard deviation
+# sigma, then 1/n sum_n(x) is approximately normal with standard deviation
+# sigma / sqrt(n). Equivalently: (sum_n(x) - mu * n) / (sigma * sqrt(n)) is
+# approximately standard normal.
 
 #### Illustration using Bernoulli trials
 
@@ -151,4 +153,28 @@ def binomial(n: int, p: int) -> int:
 
 
 # plot a binomial histogram to demonstrate convergence on the normal
-fr
+
+
+def binomial_histogram(p: float, n: int, num_points: int) -> float:
+    """Pick points from a Binomial(n, p) and plot their distribution"""
+    data = [binomial(n, p) for _ in range(num_points)]
+
+    # use a bar chart to show the actual binomial samples
+    histogram = Counter(data)
+    plt.bar([x - .4 for x in histogram.keys()],
+            [v / num_points for v in histogram.values()],
+            0.8,
+            color="0.75")
+
+    # parameters of the normal distribution
+    mu = p * n
+    sigma = math.sqrt((1 - p) * p * n)
+
+    # use a line chart to show the normal distribution
+    xs = range(min(data), max(data) + 1)
+    ys = [normal_cdf(x + 0.5, mu, sigma) -
+          normal_cdf(x - 0.5, mu, sigma) for x in xs]
+    plt.plot(xs, ys)
+    plt.title("Binomial Distribution vs. Normal Approximation")
+
+binomial_histogram(.75, 100, 10e3)
