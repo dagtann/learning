@@ -148,3 +148,8 @@ vignettes/*.pdf
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 .Rproj.user
+
+# Book files
+python_da/p4da/pydata-book-2nd-edition/
+python_da/p4da/babynames/
+
