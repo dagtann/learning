@@ -1,4 +1,6 @@
+
 # Assume population model y_i = beta * x_i + alpha + error
+
 
 def predict(alpha: float, beta: float, x_i: float) -> float:
     return beta * x_i + alpha
@@ -7,7 +9,10 @@ def predict(alpha: float, beta: float, x_i: float) -> float:
 def error(alpha: float, beta: float, x_i: float, y_i: float) -> float:
     return y_i - predict(alpha, beta, x_i)
 
+
 from scratch.linear_algebra import Vector
+
+
 def sum_of_sqerrors(alpha: float, beta: float, x: Vector, y: Vector) -> float:
     return sum(error(alpha, beta, x_i, y_i) ** 2 for x_i, y_i in zip(x, y))
 
@@ -28,10 +33,11 @@ def least_squares_fit(x: Vector, y: Vector) -> Tuple[float, float]:
 
 
 # Quick test
-a = -5; b = 3
+a = -5
+b = 3
 x = [i for i in range(-100, 110, 10)]
 y = [a + b * x_i for x_i in x]
-assert least_squares_fit(x, y) == (a, b) # works
+assert least_squares_fit(x, y) == (a, b)  # works
 
 from scratch.statistics import num_friends_good, daily_minutes_good
 alpha, beta = least_squares_fit(num_friends_good, daily_minutes_good)
@@ -55,10 +61,14 @@ from scratch.statistics import de_mean
 
 def total_sum_of_squares(y: Vector) -> float:
     return sum(y_i ** 2 for y_i in de_mean(y))
+
+
 total_sum_of_squares(y)
+
 
 def r2(alpha: float, beta: float, x: Vector, y: Vector) -> float:
     return 1 - sum_of_sqerrors(alpha, beta, x, y) / total_sum_of_squares(y)
+
 
 r2(alpha, beta, num_friends_good, daily_minutes_good)
 
@@ -87,7 +97,8 @@ with tqdm.trange(num_epochs) as t:
         grad_b = sum(2 * error(alpha, beta, x_i, y_i) * x_i
                      for x_i, y_i
                      in zip(num_friends_good, daily_minutes_good))
-        loss = sum_of_sqerrors(alpha, beta, num_friends_good, daily_minutes_good)
+        loss = sum_of_sqerrors(
+            alpha, beta, num_friends_good, daily_minutes_good)
         t.set_description(f"loss: {loss:.3f}")
         # update guess
         guess = gradient_step(guess, [grad_a, grad_b], -learning_rate)

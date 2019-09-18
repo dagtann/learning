@@ -282,3 +282,55 @@ from scratch.statistics import median, standard_deviation
 
 medians_close = bootstrap_statistic(close_to_100, median, 100)
 medians_close
+medians_far = bootstrap_statistic(far_from_100, median, 100)
+medians_far
+
+
+# Standard Errors of Regression Coefficients
+# Taking bootstrap approach -> wide distribution == low confidence in beta
+from typing import Tuple
+import datetime
+
+def estimate_sample_beta(pairs: List[Tuple[Vector, float]]):
+    x_sample = [x for x, _ in pairs]
+    y_sample = [y for _, y in pairs]
+    beta = least_squares_fit(x_sample, y_sample, learning_rate, 5000, 25)
+    print("bootstrap sample", beta)
+    return beta
+
+random.seed(0)
+bootstrap_betas = bootstrap_statistic(list(zip(inputs, daily_minutes_good)),
+                                      estimate_sample_beta, 100)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
